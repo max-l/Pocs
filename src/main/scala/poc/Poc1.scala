@@ -26,26 +26,23 @@ trait TOption
  extends TOptionByte with TOptionInt with TOptionFloat with TOptionLong with TOptionDouble with TOptionBigDecimal
  with TOptionDate with TOptionString
 
+trait TNumericLowerTypeBound 
+  extends TByte with TInt with TFloat with TLong with TDouble with TBigDecimal
+ 
 trait TNonOption
 
-trait TEnumValue
+trait TEnumValue[A] //extends TOptionEnumValue[A]
+trait TOptionEnumValue[A] extends TEnumValue[A]
+
 trait TString extends TOptionString
 trait TDate extends TOptionDate
 trait TOptionString 
 trait TOptionDate 
 
-
+@scala.annotation.implicitNotFound("The left side of the comparison (===, <>, between,...) is not compatible with the right side")
 trait CanCompare[-A1,-A2]
 
 object Impls {
-
-  implicit val enumcValueTEF = new TypedExpressionFactory[Enumeration#Value,TEnumValue] {
-    def create(v: Enumeration#Value) = new ConstantTypedExpression[Enumeration#Value,TEnumValue](v)
-    def convert(v: TypedExpression[_,_]) = new TypedExpressionConversion[Enumeration#Value,TEnumValue](v,this)
-    def sample: Enumeration#Value = sys.error("!")
-  }
-
-  implicit def enumcValueToTE(e: Enumeration#Value) = enumcValueTEF.create(e)
   
   implicit val snn1 = new TypedExpressionFactory[String,TString] {
     def create(v: String) = new ConstantTypedExpression[String,TString](v)
@@ -198,10 +195,18 @@ object Impls {
          (b: TypedExpression[A1,T1])
          (implicit bs: TypedExpressionFactory[A2,T2]) = bs.convert(b)
 
+  def min[T2 >: TOption, T1 <: T2, A1, A2]
+         (b: TypedExpression[A1,T1])
+         (implicit bs: TypedExpressionFactory[A2,T2]) = bs.convert(b)
+         
   def avg[T2 >: TOptionFloat, T1 <: T2, A1, A2]
          (b: TypedExpression[A1,T1])
          (implicit bs: TypedExpressionFactory[A2,T2]) = bs.convert(b)
 
+  def sum[T2 >: TOption, T1 >: TNumericLowerTypeBound <: T2, A1, A2]
+         (b: TypedExpression[A1,T1])
+         (implicit bs: TypedExpressionFactory[A2,T2]) = bs.convert(b)
+         
   def nvl[T4 <: TNonOption,
           T1 >: TOption,
           T3 >: T1,
@@ -214,6 +219,24 @@ object Impls {
   implicit val ce1 = new CanCompare[TNumeric, TNumeric] {}         
   implicit val ce2 = new CanCompare[TDate, TDate] {}
   implicit val ce3 = new CanCompare[TOptionString, TOptionString] {}
+  
+  implicit def enumcValueTEF[A <: Enumeration#Value] = new TypedExpressionFactory[A,TEnumValue[A]] {
+    def create(v: A) = new ConstantTypedExpression[A,TEnumValue[A]](v)
+    def convert(v: TypedExpression[_,_]) = new TypedExpressionConversion[A,TEnumValue[A]](v,this)
+    def sample: A = sys.error("!")
+  }
+  
+  implicit def optionEnumValueTEF[A <: Enumeration#Value] = new TypedExpressionFactory[Option[A],TOptionEnumValue[A]] {
+    def create(v: Option[A]) = new ConstantTypedExpression[Option[A],TOptionEnumValue[A]](v)
+    def convert(v: TypedExpression[_,_]) = new TypedExpressionConversion[Option[A],TOptionEnumValue[A]](v,this)
+    def sample: Option[A] = sys.error("!")
+  }
+
+  implicit def enumcValueToTE[A <: Enumeration#Value](e: A) = enumcValueTEF.create(e)
+  implicit def optionEnumcValueToTE[A <: Enumeration#Value](e: Option[A]) = optionEnumValueTEF.create(e)
+  
+  implicit def ce4[A] = new CanCompare[TEnumValue[A],TEnumValue[A]] {}
+  
 }
 
 trait TypedExpression[A1,T1] {
