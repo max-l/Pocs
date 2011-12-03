@@ -4,6 +4,7 @@ object Poc1Tests {
 
   import Impls._
 
+  // Generator :
 
   case class NumType(size: Int, isFloat: Boolean, isOption: Boolean, func: String, name: String)
   
@@ -87,6 +88,17 @@ object Poc1Tests {
       
       print("\n")
     }    
+  }
+  
+  def typeLevelTests = {
+  
+    1 === 1  
+    "" === ""      
+    Option("") === ""
+    "" === Option("")    
+    1 === Option(1)
+    
+    1 between (0, Option(2))    
   }
   
   def main(args: Array[String]): Unit = {
@@ -200,8 +212,15 @@ object Poc1Tests {
     (BigDecimal(1) add(2 :Long)).s: BigDecimal
     (BigDecimal(1) add(2 :Byte)).s: BigDecimal
 
-    nvl(Some(1.0F), 0).s : Float
-    nvl(Some(1.0F), 0 : Long).s : Double
+    nvl(Option(1.0F), 0).s : Float
+    nvl(Option(1.0F), 0 : Long).s : Double
+    
+    nvl(Option(1), 1).s : Int
+    nvl(Option(1), 0.7F).s  : Float    
+    nvl(Option(BigDecimal(1)), 0.7F).s  : BigDecimal
+    
+    nvl(max(BigDecimal(1)), 0.7F).s  : BigDecimal
+    nvl(avg(1: Byte), 7L).s  : Double
   }
   
   
