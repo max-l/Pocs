@@ -26,7 +26,37 @@ object NumericTypeTests {
     1.0F.value
     1.0D.value
 
-    val bLong = s4.sampleB
+    
+    avg(1 : Byte).value : Option[Float]
+    avg(1 : Int).value : Option[Float]
+    avg(1 : Long).value : Option[Double]
+    avg(1 : Float).value : Option[Float]
+    avg(1 : Double).value : Option[Double]
+    avg(BigDecimal(1)).value : Option[BigDecimal]
+    
+    avg(Option(1 : Byte)).value : Option[Float]
+    avg(Option(1 : Int)).value : Option[Float]
+    avg(Option(1 : Long)).value : Option[Double]
+    avg(Option(1 : Float)).value : Option[Float]
+    avg(Option(1 : Double)).value : Option[Double]
+    avg(Option(BigDecimal(1))).value : Option[BigDecimal]
+    
+
+    sum(1 : Byte).value : Option[Byte]
+    sum(1 : Int).value : Option[Int]
+    sum(1 : Long).value : Option[Long]
+    sum(1 : Float).value : Option[Float]
+    sum(1 : Double).value : Option[Double]
+    sum(BigDecimal(1)).value : Option[BigDecimal]
+
+    sum(Option(1 : Byte)).value : Option[Byte]
+    sum(Option(1 : Int)).value : Option[Int]
+    sum(Option(1 : Long)).value : Option[Long]
+    sum(Option(1 : Float)).value : Option[Float]
+    sum(Option(1 : Double)).value : Option[Double]
+    sum(Option(BigDecimal(1))).value : Option[BigDecimal]
+
+    val bLong = longTEF.sampleB
 
     (bLong add 3).value : Long
     (1L add 3).value : Long

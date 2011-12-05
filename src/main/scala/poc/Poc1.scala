@@ -46,37 +46,37 @@ object Impls {
   
   // =========================== Non Numerical =========================== 
   
-  implicit val snn1 = new TypedExpressionFactory[String,TString] {
+  implicit val stringTEF = new TypedExpressionFactory[String,TString] {
     def create(v: String) = new ConstantTypedExpression[String,TString](v)
     def convert(v: TypedExpression[_,_]) = new TypedExpressionConversion[String,TString](v,this)
     def sample = "": String
   }
     
-  implicit def snn1c(s: String) = snn1.create(s)
+  implicit def stringToTE(s: String) = stringTEF.create(s)
   
-  implicit val snn2 = new TypedExpressionFactory[Option[String],TOptionString] {
+  implicit val optionStringTEF = new TypedExpressionFactory[Option[String],TOptionString] {
     def create(v: Option[String]) = new ConstantTypedExpression[Option[String],TOptionString](v)
     def convert(v: TypedExpression[_,_]) = new TypedExpressionConversion[Option[String],TOptionString](v,this)
     def sample = Option("")
   }
   
-  implicit def snn2c(s: Option[String]) = snn2.create(s)  
+  implicit def optionStringToTE(s: Option[String]) = optionStringTEF.create(s)  
 
-  implicit val snnd1 = new TypedExpressionFactory[Date,TDate] {
+  implicit val dateTEF = new TypedExpressionFactory[Date,TDate] {
     def create(v: Date) = new ConstantTypedExpression[Date,TDate](v)
     def convert(v: TypedExpression[_,_]) = new TypedExpressionConversion[Date,TDate](v,this)
     def sample = new Date
   }
   
-  implicit def snn3c(s: Date) = snnd1.create(s)  
+  implicit def dateToTE(s: Date) = dateTEF.create(s)  
 
-  implicit val snnd2 = new TypedExpressionFactory[Option[Date],TOptionDate] {
+  implicit val optionDateTEF = new TypedExpressionFactory[Option[Date],TOptionDate] {
     def create(v: Option[Date]) = new ConstantTypedExpression[Option[Date],TOptionDate](v)
     def convert(v: TypedExpression[_,_]) = new TypedExpressionConversion[Option[Date],TOptionDate](v,this)
     def sample = Option(new Date)
   }
   
-  implicit def snn4c(s: Option[Date]) = snnd2.create(s)  
+  implicit def optionDateToTE(s: Option[Date]) = optionDateTEF.create(s)  
   
   // =========================== Numerical Integral =========================== 
 
@@ -89,10 +89,12 @@ object Impls {
   
   implicit def byteToTE(f: Byte) = byteTEF.create(f)  
 
-  implicit val optionByteTEF = new OptionTypedExpressionFactory[Byte,TByte,TOptionByte] {
+  implicit val optionByteTEF = new IntegralTypedExpressionFactory[Option[Byte],TOptionByte, Option[Float], TOptionFloat] with DeOptionizer[Byte, TByte, Option[Byte], TOptionByte]{
     def create(v: Option[Byte]) = new ConstantTypedExpression[Option[Byte],TOptionByte](v)
     def convert(v: TypedExpression[_,_]) = new TypedExpressionConversion[Option[Byte],TOptionByte](v,this)
-    def related = byteTEF
+    def deOptionizer = byteTEF
+    def sample = Option(0 : Byte)
+    def floatifyer = optionFloatTEF
   }
   
   implicit def optionByteToTE(f: Option[Byte]) = optionByteTEF.create(f)  
@@ -106,10 +108,12 @@ object Impls {
   
   implicit def intToTE(f: Int) = intTEF.create(f)  
 
-  implicit val optionIntTEF = new OptionTypedExpressionFactory[Int,TInt,TOptionInt] {
+  implicit val optionIntTEF = new IntegralTypedExpressionFactory[Option[Int],TOptionInt,Option[Float],TOptionFloat] with DeOptionizer[Int,TInt,Option[Int],TOptionInt] {
     def create(v: Option[Int]) = new ConstantTypedExpression[Option[Int],TOptionInt](v)
     def convert(v: TypedExpression[_,_]) = new TypedExpressionConversion[Option[Int],TOptionInt](v,this)
-    def related = intTEF
+    def deOptionizer = intTEF
+    def sample = Option(0)
+    def floatifyer = optionFloatTEF
   }
 
   implicit def optionIntToTE(f: Option[Int]) = optionIntTEF.create(f)
@@ -123,10 +127,12 @@ object Impls {
   
   implicit def longToTE(f: Long) = longTEF.create(f)
 
-  implicit val optionLongTEF = new OptionTypedExpressionFactory[Long,TLong,TOptionLong] {
+  implicit val optionLongTEF = new IntegralTypedExpressionFactory[Option[Long],TOptionLong,Option[Double],TOptionDouble] with DeOptionizer[Long,TLong,Option[Long],TOptionLong] {
     def create(v: Option[Long]) = new ConstantTypedExpression[Option[Long],TOptionLong](v)
     def convert(v: TypedExpression[_,_]) = new TypedExpressionConversion[Option[Long],TOptionLong](v,this)
-    def related = longTEF
+    def deOptionizer = longTEF
+    def sample = Option(0L)
+    def floatifyer = optionDoubleTEF
   }
   
   implicit def optionLongToTE(f: Option[Long]) = optionLongTEF.create(f)  
@@ -141,10 +147,11 @@ object Impls {
     
   implicit def floatToTE(f: Float) = floatTEF.create(f)
   
-  implicit val optionFloatTEF = new FloatOptionTypedExpressionFactory[Float,TFloat,TOptionFloat] {
+  implicit val optionFloatTEF = new FloatTypedExpressionFactory[Option[Float],TOptionFloat] with DeOptionizer[Float,TFloat,Option[Float],TOptionFloat] {
     def create(v: Option[Float]) = new ConstantTypedExpression[Option[Float],TOptionFloat](v)
     def convert(v: TypedExpression[_,_]) = new TypedExpressionConversion[Option[Float],TOptionFloat](v,this)
-    def related = floatTEF
+    def deOptionizer = floatTEF
+    def sample = Option(0F)
   }
 
   implicit def optionFloatToTE(f: Option[Float]) = optionFloatTEF.create(f)
@@ -157,10 +164,11 @@ object Impls {
 
   implicit def doubleToTE(f: Double) = doubleTEF.create(f)    
   
-  implicit val optionDoubleTEF = new FloatOptionTypedExpressionFactory[Double,TDouble,TOptionDouble] {
+  implicit val optionDoubleTEF = new FloatTypedExpressionFactory[Option[Double],TOptionDouble] with DeOptionizer[Double,TDouble,Option[Double],TOptionDouble] {
     def create(v: Option[Double]) = new ConstantTypedExpression[Option[Double],TOptionDouble](v)
     def convert(v: TypedExpression[_,_]) = new TypedExpressionConversion[Option[Double],TOptionDouble](v,this)
-    def related = doubleTEF
+    def deOptionizer = doubleTEF
+    def sample = Option(0D)
   }
   
   implicit def optionDoubleToTE(f: Option[Double]) = optionDoubleTEF.create(f)
@@ -173,41 +181,15 @@ object Impls {
 
   implicit def bigDecimalToTE(f: BigDecimal) = bigDecimalTEF.create(f)
   
-  implicit val optionBigDecimalTEF = new FloatOptionTypedExpressionFactory[BigDecimal,TBigDecimal,TOptionBigDecimal] {
+  implicit val optionBigDecimalTEF = new FloatTypedExpressionFactory[Option[BigDecimal],TOptionBigDecimal] with DeOptionizer[BigDecimal,TBigDecimal,Option[BigDecimal],TOptionBigDecimal] {
     def create(v: Option[BigDecimal]) = new ConstantTypedExpression[Option[BigDecimal],TOptionBigDecimal](v)
     def convert(v: TypedExpression[_,_]) = new TypedExpressionConversion[Option[BigDecimal],TOptionBigDecimal](v,this)
-    def related = bigDecimalTEF
+    def deOptionizer = bigDecimalTEF
+    def sample = Option(BigDecimal(0))
   }
     
   implicit def optionBigDecimalToTE(f: Option[BigDecimal]) = optionBigDecimalTEF.create(f)
 
-
-  /*
-  implicit val z1 = new Floatifier[TByte,Float,TFloat] {
-    def convert(v: TypedExpression[_,_]) = new TypedExpressionConversion[Float,TFloat](v,null)
-  }
-
-  implicit val z2 = new Floatifier[TOptionByte,Option[Float],TOptionFloat] {
-    def convert(v: TypedExpression[_,_]) = new TypedExpressionConversion[Option[Float],TOptionFloat](v,null)
-  }
-  
-  implicit val z3 = new Floatifier[TLong,Double,TDouble] {
-    def convert(v: TypedExpression[_,_]) = new TypedExpressionConversion[Double,TDouble](v,null)
-  }
-
-  implicit val z4 = new Floatifier[TOptionLong,Option[Double],TOptionDouble] {
-    def convert(v: TypedExpression[_,_]) = new TypedExpressionConversion[Option[Double],TOptionDouble](v,null)
-  }
-  
-  implicit val z5 = new Floatifier[TInt,Float,TFloat] {
-    def convert(v: TypedExpression[_,_]) = new TypedExpressionConversion[Float,TFloat](v,null)
-  }  
-  
-  implicit val z6 = new Floatifier[TOptionInt,Option[Float],TOptionFloat] {
-    def convert(v: TypedExpression[_,_]) = new TypedExpressionConversion[Option[Float],TOptionFloat](v,null)
-  }  
-
-    */
   def max[T2 >: TOption, T1 <: T2, A1, A2]
          (b: TypedExpression[A1,T1])
          (implicit bs: TypedExpressionFactory[A2,T2]) = bs.convert(b)
@@ -215,7 +197,7 @@ object Impls {
   def min[T2 >: TOption, T1 <: T2, A1, A2]
          (b: TypedExpression[A1,T1])
          (implicit bs: TypedExpressionFactory[A2,T2]) = bs.convert(b)
-         
+
   def avg[T2 >: TOptionFloat, T1 <: T2, A1, A2]
          (b: TypedExpression[A1,T1])
          (implicit bs: TypedExpressionFactory[A2,T2]) = bs.convert(b)
@@ -223,7 +205,7 @@ object Impls {
   def sum[T2 >: TOption, T1 >: TNumericLowerTypeBound <: T2, A1, A2]
          (b: TypedExpression[A1,T1])
          (implicit bs: TypedExpressionFactory[A2,T2]) = bs.convert(b)
-         
+
   def nvl[T4 <: TNonOption,
           T1 >: TOption,
           T3 >: T1,
@@ -231,8 +213,8 @@ object Impls {
           A1,A2,A3]
          (a: TypedExpression[A1,T1],
           b: TypedExpression[A2,T2])
-         (implicit bs: OptionTypedExpressionFactory[A3,T4,T3]): TypedExpression[A3,T4] = bs.related.convert(a)
-
+         (implicit d: DeOptionizer[A3,T4,_,T3]): TypedExpression[A3,T4] = d.deOptionizer.convert(a)
+  
   implicit val ce1 = new CanCompare[TNumeric, TNumeric] {}         
   implicit val ce2 = new CanCompare[TDate, TDate] {}
   implicit val ce3 = new CanCompare[TOptionString, TOptionString] {}
@@ -275,7 +257,6 @@ trait TypedExpression[A1,T1] {
                            b2: TypedExpression[A3,T3])
                           (implicit ev1: CanCompare[T1, T2], 
                                     ev2: CanCompare[T2, T3]) = 0
-                                      
 }
 
 class ConstantTypedExpression[A1,T1](val a: A1) extends TypedExpression[A1,T1] {
@@ -312,22 +293,8 @@ trait IntegralTypedExpressionFactory[A1,T1,A2,T2]
 }
 
 
-trait OptionTypedExpressionFactory[F,G1,G2] extends TypedExpressionFactory[Option[F],G2] {
-  def sample = Some(related.sample)
-  def related: TypedExpressionFactory[F,G1]
-}
-
-
-abstract class FloatOptionTypedExpressionFactory[F,G1,G2] 
-  extends OptionTypedExpressionFactory[F,G1,G2]
-  with Floatifier[G2,Option[F],G2] {
-  def floatify(v: TypedExpression[_,_]): TypedExpressionConversion[Option[F],G2] = convert(v)
-
-}
-
-abstract class IntegralOptionTypedExpressionFactory[A1,T1,A2,F2,A3,NO3] 
-  extends IntegralTypedExpressionFactory[A1,T1,A2,F2] {
-  def floatify(v: TypedExpression[_,_]): TypedExpressionConversion[Option[A2],F2] = floatifyer.floatify(v)
-  def related: TypedExpressionFactory[A3,NO3]
-  def floatifyer: TypedExpressionFactory[Option[A2],F2]
+trait DeOptionizer[A1,T1,A2 <: Option[A1],T2] {
+  self: TypedExpressionFactory[A2,T2] =>
+    
+  def deOptionizer: TypedExpressionFactory[A1,T1]
 }
