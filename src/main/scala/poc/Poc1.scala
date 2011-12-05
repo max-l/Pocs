@@ -44,6 +44,8 @@ trait CanCompare[-A1,-A2]
 
 object Impls {
   
+  // =========================== Non Numerical =========================== 
+  
   implicit val snn1 = new TypedExpressionFactory[String,TString] {
     def create(v: String) = new ConstantTypedExpression[String,TString](v)
     def convert(v: TypedExpression[_,_]) = new TypedExpressionConversion[String,TString](v,this)
@@ -76,96 +78,111 @@ object Impls {
   
   implicit def snn4c(s: Option[Date]) = snnd2.create(s)  
   
-  implicit val s1 = new TypedExpressionFactory[Byte,TByte] {
+  // =========================== Numerical Integral =========================== 
+
+  implicit val byteTEF = new IntegralTypedExpressionFactory[Byte,TByte,Float,TFloat] {
     def create(v: Byte) = new ConstantTypedExpression[Byte,TByte](v)
     def convert(v: TypedExpression[_,_]) = new TypedExpressionConversion[Byte,TByte](v,this)
     def sample = 1: Byte
+    def floatifyer = floatTEF
   }
   
-  implicit def fi2b(f: Byte) = s1.create(f)  
+  implicit def byteToTE(f: Byte) = byteTEF.create(f)  
 
-  implicit val s2 = new FloatTypedExpressionFactory[Double,TDouble] {
+  implicit val optionByteTEF = new OptionTypedExpressionFactory[Byte,TByte,TOptionByte] {
+    def create(v: Option[Byte]) = new ConstantTypedExpression[Option[Byte],TOptionByte](v)
+    def convert(v: TypedExpression[_,_]) = new TypedExpressionConversion[Option[Byte],TOptionByte](v,this)
+    def related = byteTEF
+  }
+  
+  implicit def optionByteToTE(f: Option[Byte]) = optionByteTEF.create(f)  
+  
+  implicit val intTEF = new IntegralTypedExpressionFactory[Int,TInt,Float,TFloat] {
+    def create(v: Int) = new ConstantTypedExpression[Int,TInt](v)
+    def convert(v: TypedExpression[_,_]) = new TypedExpressionConversion[Int,TInt](v,this)
+    def sample = 1
+    def floatifyer = floatTEF
+  }
+  
+  implicit def intToTE(f: Int) = intTEF.create(f)  
+
+  implicit val optionIntTEF = new OptionTypedExpressionFactory[Int,TInt,TOptionInt] {
+    def create(v: Option[Int]) = new ConstantTypedExpression[Option[Int],TOptionInt](v)
+    def convert(v: TypedExpression[_,_]) = new TypedExpressionConversion[Option[Int],TOptionInt](v,this)
+    def related = intTEF
+  }
+
+  implicit def optionIntToTE(f: Option[Int]) = optionIntTEF.create(f)
+  
+  implicit val longTEF = new IntegralTypedExpressionFactory[Long,TLong,Double,TDouble] {
+    def create(v: Long) = new ConstantTypedExpression[Long,TLong](v)
+    def convert(v: TypedExpression[_,_]) = new TypedExpressionConversion[Long,TLong](v,this)
+    def sample = 1L
+    def floatifyer = doubleTEF
+  }
+  
+  implicit def longToTE(f: Long) = longTEF.create(f)
+
+  implicit val optionLongTEF = new OptionTypedExpressionFactory[Long,TLong,TOptionLong] {
+    def create(v: Option[Long]) = new ConstantTypedExpression[Option[Long],TOptionLong](v)
+    def convert(v: TypedExpression[_,_]) = new TypedExpressionConversion[Option[Long],TOptionLong](v,this)
+    def related = longTEF
+  }
+  
+  implicit def optionLongToTE(f: Option[Long]) = optionLongTEF.create(f)  
+  
+  // =========================== Numerical Floating Point =========================== 
+  
+  implicit val floatTEF = new FloatTypedExpressionFactory[Float,TFloat] {
+    def create(v: Float) = new ConstantTypedExpression[Float,TFloat](v)
+    def convert(v: TypedExpression[_,_]) = new TypedExpressionConversion[Float,TFloat](v,this)
+    def sample = 1F
+  }
+    
+  implicit def floatToTE(f: Float) = floatTEF.create(f)
+  
+  implicit val optionFloatTEF = new FloatOptionTypedExpressionFactory[Float,TFloat,TOptionFloat] {
+    def create(v: Option[Float]) = new ConstantTypedExpression[Option[Float],TOptionFloat](v)
+    def convert(v: TypedExpression[_,_]) = new TypedExpressionConversion[Option[Float],TOptionFloat](v,this)
+    def related = floatTEF
+  }
+
+  implicit def optionFloatToTE(f: Option[Float]) = optionFloatTEF.create(f)
+  
+  implicit val doubleTEF = new FloatTypedExpressionFactory[Double,TDouble] {
     def create(v: Double) = new ConstantTypedExpression[Double,TDouble](v)
     def convert(v: TypedExpression[_,_]) = new TypedExpressionConversion[Double,TDouble](v,this)
     def sample = 1D
   }
 
-  implicit def fi2b(f: Double) = s2.create(f)    
-
-  implicit val s3 = new TypedExpressionFactory[Int,TInt] {
-    def create(v: Int) = new ConstantTypedExpression[Int,TInt](v)
-    def convert(v: TypedExpression[_,_]) = new TypedExpressionConversion[Int,TInt](v,this)
-    def sample = 1
-  }
+  implicit def doubleToTE(f: Double) = doubleTEF.create(f)    
   
-  implicit def fi2b(f: Int) = s3.create(f)  
-
-  implicit val s4 = new TypedExpressionFactory[Long,TLong] {
-    def create(v: Long) = new ConstantTypedExpression[Long,TLong](v)
-    def convert(v: TypedExpression[_,_]) = new TypedExpressionConversion[Long,TLong](v,this)
-    def sample = 1L
-  }
-  
-  implicit def fi2b(f: Long) = s4.create(f)
-
-  implicit val s5 = new FloatTypedExpressionFactory[Float,TFloat] {
-    def create(v: Float) = new ConstantTypedExpression[Float,TFloat](v)
-    def convert(v: TypedExpression[_,_]) = new TypedExpressionConversion[Float,TFloat](v,this)
-    def sample = 1F
-  }
-  
-  implicit def fi2b(f: Float) = s5.create(f)
-    
-  implicit val s6 = new OptionTypedExpressionFactory[Byte,TByte,TOptionByte](s1) {
-    def create(v: Option[Byte]) = new ConstantTypedExpression[Option[Byte],TOptionByte](v)
-    def convert(v: TypedExpression[_,_]) = new TypedExpressionConversion[Option[Byte],TOptionByte](v,this)
-  }
-  
-  implicit def fi2b1(f: Option[Byte]) = s6.create(f)  
-
-  implicit val s7 = new FloatOptionTypedExpressionFactory[Double,TDouble,TOptionDouble](s2) {
+  implicit val optionDoubleTEF = new FloatOptionTypedExpressionFactory[Double,TDouble,TOptionDouble] {
     def create(v: Option[Double]) = new ConstantTypedExpression[Option[Double],TOptionDouble](v)
     def convert(v: TypedExpression[_,_]) = new TypedExpressionConversion[Option[Double],TOptionDouble](v,this)
+    def related = doubleTEF
   }
   
-  implicit def fi2b5(f: Option[Double]) = s7.create(f)
-
-  implicit val s8 = new OptionTypedExpressionFactory[Int,TInt,TOptionInt](s3) {
-    def create(v: Option[Int]) = new ConstantTypedExpression[Option[Int],TOptionInt](v)
-    def convert(v: TypedExpression[_,_]) = new TypedExpressionConversion[Option[Int],TOptionInt](v,this)
-  }
-
-  implicit def fi2b2(f: Option[Int]) = s8.create(f)
-
-  implicit val s9 = new OptionTypedExpressionFactory[Long,TLong,TOptionLong](s4) {
-    def create(v: Option[Long]) = new ConstantTypedExpression[Option[Long],TOptionLong](v)
-    def convert(v: TypedExpression[_,_]) = new TypedExpressionConversion[Option[Long],TOptionLong](v,this)
-  }
+  implicit def optionDoubleToTE(f: Option[Double]) = optionDoubleTEF.create(f)
   
-  implicit def fi2b3(f: Option[Long]) = s9.create(f)  
-
-  implicit val s10 = new FloatOptionTypedExpressionFactory[Float,TFloat,TOptionFloat](s5) {
-    def create(v: Option[Float]) = new ConstantTypedExpression[Option[Float],TOptionFloat](v)
-    def convert(v: TypedExpression[_,_]) = new TypedExpressionConversion[Option[Float],TOptionFloat](v,this)
-  }
-
-  implicit def fi2b4(f: Option[Float]) = s10.create(f)
-  
-  implicit val s12 = new FloatTypedExpressionFactory[BigDecimal,TBigDecimal] {
+  implicit val bigDecimalTEF = new FloatTypedExpressionFactory[BigDecimal,TBigDecimal] {
     def create(v: BigDecimal) = new ConstantTypedExpression[BigDecimal,TBigDecimal](v)
     def convert(v: TypedExpression[_,_]) = new TypedExpressionConversion[BigDecimal,TBigDecimal](v,this)
     def sample = BigDecimal(1)
   }
 
-  implicit def fi2b6(f: Option[BigDecimal]) = s11.create(f)
+  implicit def bigDecimalToTE(f: BigDecimal) = bigDecimalTEF.create(f)
   
-  implicit val s11 = new FloatOptionTypedExpressionFactory[BigDecimal,TBigDecimal,TOptionBigDecimal](s12) {
+  implicit val optionBigDecimalTEF = new FloatOptionTypedExpressionFactory[BigDecimal,TBigDecimal,TOptionBigDecimal] {
     def create(v: Option[BigDecimal]) = new ConstantTypedExpression[Option[BigDecimal],TOptionBigDecimal](v)
     def convert(v: TypedExpression[_,_]) = new TypedExpressionConversion[Option[BigDecimal],TOptionBigDecimal](v,this)
+    def related = bigDecimalTEF
   }
-  
-  implicit def fi2b7(f: BigDecimal) = s12.create(f)
+    
+  implicit def optionBigDecimalToTE(f: Option[BigDecimal]) = optionBigDecimalTEF.create(f)
 
+
+  /*
   implicit val z1 = new Floatifier[TByte,Float,TFloat] {
     def convert(v: TypedExpression[_,_]) = new TypedExpressionConversion[Float,TFloat](v,null)
   }
@@ -190,7 +207,7 @@ object Impls {
     def convert(v: TypedExpression[_,_]) = new TypedExpressionConversion[Option[Float],TOptionFloat](v,null)
   }  
 
-    
+    */
   def max[T2 >: TOption, T1 <: T2, A1, A2]
          (b: TypedExpression[A1,T1])
          (implicit bs: TypedExpressionFactory[A2,T2]) = bs.convert(b)
@@ -248,7 +265,7 @@ trait TypedExpression[A1,T1] {
   def div[T3 >: T1 <: TNumeric, T2 <: T3, A2, A3, A4, T4]
          (e: TypedExpression[A2,T2])
          (implicit f:  TypedExpressionFactory[A3,T3], 
-                   tf: Floatifier[T3,A4,T4]): TypedExpression[A4,T4] = tf.convert(e)
+                   tf: Floatifier[T3,A4,T4]): TypedExpression[A4,T4] = tf.floatify(e)
 
   def value: A1
   
@@ -258,6 +275,7 @@ trait TypedExpression[A1,T1] {
                            b2: TypedExpression[A3,T3])
                           (implicit ev1: CanCompare[T1, T2], 
                                     ev2: CanCompare[T2, T3]) = 0
+                                      
 }
 
 class ConstantTypedExpression[A1,T1](val a: A1) extends TypedExpression[A1,T1] {
@@ -269,25 +287,47 @@ class TypedExpressionConversion[A1,T1](val b: TypedExpression[_,_], bf: TypedExp
 }
 
 trait Floatifier[T1,A2,T2] {
-  def convert(v: TypedExpression[_,_]): TypedExpressionConversion[A2,T2]
+  def floatify(v: TypedExpression[_,_]): TypedExpressionConversion[A2,T2]
 }
 
 trait IdentityFloatifier[A1,T1] extends Floatifier[T1,A1,T1]
 
-trait FloatTypedExpressionFactory[A1,T1] extends TypedExpressionFactory[A1,T1] with IdentityFloatifier[A1,T1]
+trait FloatTypedExpressionFactory[A1,T1] extends TypedExpressionFactory[A1,T1] with IdentityFloatifier[A1,T1] {
+  def floatify(v: TypedExpression[_,_]): TypedExpressionConversion[A1,T1] = convert(v)
+}
 
-trait TypedExpressionFactory[F,G] {
+trait TypedExpressionFactory[A,T] {
 
-  def create(f: F) : TypedExpression[F,G]
-  def convert(v: TypedExpression[_,_]): TypedExpressionConversion[F,G]
-  def sample: F
+  def create(f: A) : TypedExpression[A,T]
+  def convert(v: TypedExpression[_,_]): TypedExpressionConversion[A,T]
+  def sample: A
   def sampleB = create(sample)
 }
 
-abstract class OptionTypedExpressionFactory[F,G1,G2](val related: TypedExpressionFactory[F,G1]) extends TypedExpressionFactory[Option[F],G2] {
-  def sample = Some(related.sample)
+trait IntegralTypedExpressionFactory[A1,T1,A2,T2] 
+  extends TypedExpressionFactory[A1,T1] with Floatifier[T1,A2,T2] {
+  
+  def floatify(v: TypedExpression[_,_]): TypedExpressionConversion[A2,T2] = floatifyer.convert(v)
+  def floatifyer: TypedExpressionFactory[A2,T2]
 }
 
-abstract class FloatOptionTypedExpressionFactory[F,G1,G2](_related: TypedExpressionFactory[F,G1]) 
-extends OptionTypedExpressionFactory[F,G1,G2](_related)
-with Floatifier[G2,Option[F],G2]
+
+trait OptionTypedExpressionFactory[F,G1,G2] extends TypedExpressionFactory[Option[F],G2] {
+  def sample = Some(related.sample)
+  def related: TypedExpressionFactory[F,G1]
+}
+
+
+abstract class FloatOptionTypedExpressionFactory[F,G1,G2] 
+  extends OptionTypedExpressionFactory[F,G1,G2]
+  with Floatifier[G2,Option[F],G2] {
+  def floatify(v: TypedExpression[_,_]): TypedExpressionConversion[Option[F],G2] = convert(v)
+
+}
+
+abstract class IntegralOptionTypedExpressionFactory[A1,T1,A2,F2,A3,NO3] 
+  extends IntegralTypedExpressionFactory[A1,T1,A2,F2] {
+  def floatify(v: TypedExpression[_,_]): TypedExpressionConversion[Option[A2],F2] = floatifyer.floatify(v)
+  def related: TypedExpressionFactory[A3,NO3]
+  def floatifyer: TypedExpressionFactory[Option[A2],F2]
+}
